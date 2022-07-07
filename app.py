@@ -1,6 +1,6 @@
 import os
 from flask import Flask, flash, request, redirect, url_for, send_file
-from werkzeug.utils import secure_filename
+from werkzeug.utils import secure_filename, send_file 
 from sqlalchemy import create_engine
 import geopandas as gpd
 import zipfile
@@ -1220,7 +1220,7 @@ def bf_page():
             # if file and allowed_file(file.filename):
 
             ls_name = file.filename.split(".")
-            ls_name[0] = "duct"
+            ls_name[0] = "pia_duct"
             file.filename = ".".join(ls_name)
             print("Gaist File", file.filename)
             filename = secure_filename(file.filename)
@@ -1234,7 +1234,7 @@ def bf_page():
             # if file and allowed_file(file.filename):
 
             ls_name = file.filename.split(".")
-            ls_name[0] = "landoundary"
+            ls_name[0] = "landboundary"
             file.filename = ".".join(ls_name)
             print("Gaist File", file.filename)
             filename = secure_filename(file.filename)
@@ -1262,7 +1262,7 @@ def bf_page():
             # if file and allowed_file(file.filename):
 
             ls_name = file.filename.split(".")
-            ls_name[0] = "piastruc"
+            ls_name[0] = "pia_structure"
             file.filename = ".".join(ls_name)
             print("Gaist File", file.filename)
             filename = secure_filename(file.filename)
@@ -1341,7 +1341,7 @@ def bf_update_db():
     name_shape_file = []
     for source, dirs, files in full_dir:
         for file_ in files:
-            if file_[-3:] == 'shp' and (file_[:-4] in ['asn_boundary', 'aerial_drop', 'ug_landboundary', 'estimated_nodes', 'withleading', 'large_mdu', 'cluster_output', 'wall_mount_mdu']):
+            if file_[-3:] == 'shp' and (file_[:-4] in ['asn_boundary','demand_points','a_dp', 'aerial_drop', 'ug_landboundary', 'nodes_output', 'withleading', 'large_mdu', 'cluster_output', 'wall_mount_mdu']):
                 shapefile_path = os.path.join(base_dir, file_)
                 shapefile_list.append(shapefile_path)
                 name_shape_file.append(file_[:-4])
@@ -1380,6 +1380,202 @@ def bf_update_db():
                                  store_name=f"{username}_sample_flask_{name_shape_file[shape_path]}",
                                  pg_table=table_name, srs_data="EPSG:27700")
         geo.publish_style(layer_name=table_name, style_name=table_name[len(username)+1:], workspace=works_name, srs_name="EPSG:27700")
+        print("***************************END***********************")
+
+        # terminate_connections()
+        # geo.upload_style(path=os.path.join(os.getcwd(),"proposed.sld"), workspace=workspaceName)
+    # geo.publish_style(layer_name=table_name, style_name='nodeboundary', workspace=workspaceName, srs_name="EPSG:27700")
+    # terminate_connections()
+    print("***************************END***********************")
+    # GEOSERVER CODE
+    return {
+        "status": 200,
+        "table_name": name_shape_file,
+        "workspace_name": works_name
+    }
+@app.route('/snboundary_page', methods=['GET', 'POST'])
+def snboundary_page():
+    if request.method == 'POST':
+        # username = json.loads(request.data)["username"]
+        username = request.form.get('username')
+        # terminate_connections()
+        for file in request.files.getlist('aerialdp_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "aerialdp"
+            file.filename = ".".join(ls_name)
+            print("aerialdp file", file.filename)
+
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('gaistdata_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "gaistdata"
+            file.filename = ".".join(ls_name)
+            print("gaistdata File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('streetcenterline_files'):
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+            ls_name = file.filename.split(".")
+            ls_name[0] = "streetcenterline"
+            file.filename = ".".join(ls_name)
+            print("streetcenterline File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('undergrounddp_files'):
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+            ls_name = file.filename.split(".")
+            ls_name[0] = "undergrounddp"
+            file.filename = ".".join(ls_name)
+            print("undergrounddp File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('lndbnry_files'):
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+            ls_name = file.filename.split(".")
+            ls_name[0] = "lndbnry"
+            file.filename = ".".join(ls_name)
+            print("lndbnry File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('topographiclines_files'):
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+            ls_name = file.filename.split(".")
+            ls_name[0] = "topographiclines"
+            file.filename = ".".join(ls_name)
+            print("topographiclines File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+        # terminate_connections()
+        return redirect(url_for('snboundary_page_update_db',
+                                filename=username))
+
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+        <h1>Aerialdp files</h1>
+      <input type=file name=aerialdp_files multiple>
+      <br>
+      <h1>Gaistdata Files</h1>
+      <input type=file name=gaistdata_files multiple>
+      <br>
+      <h1>Streetcenterline files</h1>
+      <input type=file name=streetcenterline_files multiple>
+      <br>
+      <h1>undergrounddp files</h1>
+      <input type=file name=undergrounddp_files multiple>
+       <br>
+      <h1>lndbnry files</h1>
+      <input type=file name=lndbnry_files multiple>
+      <br>
+      <h1>topographiclines files</h1>
+      <input type=file name=topographiclines_files multiple>
+      <h1>username</h1>
+      <input type=text name=username multiple>
+      <input type=submit value=Upload>
+    </form>
+    '''
+
+
+@app.route('/snboundary_page_update_db', methods=['GET', 'POST'])
+def snboundary_page_update_db():
+    username = request.args.get("filename")
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input"):
+        for file in files:
+            if (file.endswith(".zip")):
+                with zipfile.ZipFile((os.path.join(subdir, file)), "fr") as zip_ref:
+                    zip_ref.extractall(subdir)
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input"):
+        for file in files:
+            if (file.endswith(".shp")):
+                full_path = os.path.join(subdir, file)
+                pointDf = gpd.read_file(full_path)
+                pointDf.crs = "epsg:27700"
+
+                os.remove(full_path)
+                pointDf.to_file(full_path)
+                print(pointDf)
+    qgis_int = fr"C:\Program Files\QGIS 3.20.0\bin\python-qgis.bat"
+    subprocess.run(f'{qgis_int} "{HOME_DIR}/scripts/secondary_snb.py" {username}')
+
+    base_dir = fr"{HOME_DIR}/{username}/data output"
+    full_dir = os.walk(base_dir)
+    shapefile_list = []
+    name_shape_file = []
+    for source, dirs, files in full_dir:
+        for file_ in files:
+            if file_[-3:] == 'shp' and (
+                    file_[:-4] in ['new_clusters', 'final_boundaries']):
+                shapefile_path = os.path.join(base_dir, file_)
+                shapefile_list.append(shapefile_path)
+                name_shape_file.append(file_[:-4])
+    # terminate_connections()
+    for shape_path in range(len(shapefile_list)):
+        # terminate_connections()
+        remove_table(f"{username}_sample_flask_{name_shape_file[shape_path]}")
+        # terminate_connections()
+        print()
+        print("Table name", name_shape_file[shape_path])
+        print()
+        cmds = 'shp2pgsql "' + shapefile_list[
+            shape_path] + f'" {username}_sample_flask_{name_shape_file[shape_path]} | psql '
+        subprocess.call(cmds, shell=True)
+        # terminate_connections()
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input"):
+        for file in files:
+            os.remove(os.path.join(subdir, file))
+    geo = Geoserver('http://localhost:8080/geoserver', username='admin', password='geoserver')
+    curr_time = int(time.time() * 1000)
+    works_name = f"NODE_{curr_time}"
+
+    geo.create_workspace(workspace=works_name)
+    arr = []
+    for shape_path in range(len(shapefile_list)):
+        # terminate_connections()
+        print("***************************RUNNING***********************")
+
+        table_name = f"{username}_sample_flask_{name_shape_file[shape_path]}"
+
+        x = geo.create_featurestore(store_name=f"{username}_sample_flask_{name_shape_file[shape_path]}",
+                                    workspace=works_name, db='UAT', host='localhost', port="5432",
+                                    pg_user='postgres',
+                                    pg_password='postgres', loose_bbox="")
+        print(x)
+        geo.publish_featurestore(workspace=works_name,
+                                 store_name=f"{username}_sample_flask_{name_shape_file[shape_path]}",
+                                 pg_table=table_name, srs_data="EPSG:27700")
+        geo.publish_style(layer_name=table_name, style_name=table_name[len(username) + 1:], workspace=works_name,
+                          srs_name="EPSG:27700")
         print("***************************END***********************")
 
         # terminate_connections()
@@ -1990,6 +2186,635 @@ def secondary_dis_update_db():
         "table_name": name_shape_file,
         "workspace_name": workspace_name
     }
+    
+@app.route('/load_data_cluster',methods=['GET', 'POST'])
+def load_data_cluster():
+    global CURRENT_TYPE
+    username = str(request.args.get("username"))
+    current_type = CURRENT_TYPE[username]
+    #terminate_connections()
+    engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database}')
+    if(current_type=="A"):
+        df = pd.read_sql_query(f'select cluster_index,sum(pon_homes) as tot_pon from "{username}_sample_flask_clusters" group by cluster_index having sum(pon_homes) > 24 or sum(pon_homes) < 3',con=engine)
+    else:
+        df = pd.read_sql_query(f'select cluster_index,sum(pon_homes) as tot_pon from "{username}_sample_flask_clusters" group by cluster_index having sum(pon_homes) > 48 or sum(pon_homes) < 16',con=engine)
+    engine.dispose()
+    #terminate_connections()
+    print(df)
+    return {
+        "status": 200,
+        "cluster_index":list(df["cluster_index"].astype(str).values),
+        "sum_pon_homes":list(df["tot_pon"].astype(str).values)
+    }
+    
+@app.route('/update_db_cluster',methods=['GET', 'POST'])  
+def update_db_cluster():
+    global CURRENT_TYPE
+    if request.method == 'POST':
+        username = request.form.get('username')
+        current_type = CURRENT_TYPE[username]
+        #terminate_connections()
+        # check if the post request has the file part
+        cluster_in = int(request.form["input_cluster_index"])
+        cluster_out = int(request.form["output_cluster_index"])
+        uprn = int(request.form["uprn"])
+        
+        print("Cluster_in",cluster_in)
+        print("Cluster_out",cluster_out)
+        print("uprn",uprn)
+        
+        #IMPORT psycopg2
+        #update db
+        try:
+            conn = psycopg2.connect(
+               database=database, user=user, password=password, host=host, port= port
+            )
+            conn.autocommit = True
+
+            cursor = conn.cursor()
+            sql = f'UPDATE "{username}_sample_flask_clusters" SET "cluster_index" = {cluster_out} WHERE ("uprn" = {uprn}) AND ("cluster_index" = {cluster_in})'
+            cursor.execute(sql)
+            conn.commit()
+            
+            #Closing the connection
+            conn.close()
+            #terminate_connections()
+            if(current_type=="A"):
+                ver = generate_outliers(3,24,username)
+            else:
+                ver = generate_outliers(16,48,username)
+            curr_time = int(time.time()*1000)
+            workspace_name = f"NODE_{curr_time}"
+            # workspace_name = "NODE_555"
+            table_name = f"{username}_sample_flask_cluster_output"
+            geo = Geoserver('http://localhost:8080/geoserver', username='admin', password='geoserver')
+            geo.create_workspace(workspace=workspace_name)
+            x = geo.create_featurestore(store_name=table_name, workspace=workspace_name, db='UAT', host='localhost',
+                                        port="5432",
+                                        pg_user='postgres',
+                                        pg_password='postgres', loose_bbox="")
+            print(x)
+            geo.publish_featurestore(workspace=workspace_name, store_name=table_name, pg_table=table_name,
+                                     srs_data="EPSG:27700")
+            geo.publish_style(layer_name=table_name, style_name='outlier', workspace=workspace_name,
+                              srs_name="EPSG:27700")
+            #terminate_connections()
+        except Exception as msg:
+            return {
+                "Status":"FAILED",
+                "Error":msg
+            }
+
+        engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database}')
+        if(CURRENT_TYPE=="A"):
+            df = pd.read_sql_query(
+                f'select cluster_index,sum(pon_homes) as tot_pon from "{username}_sample_flask_clusters" group by cluster_index having sum(pon_homes) > 24 or sum(pon_homes) < 3',
+                con=engine)
+        else:
+            df = pd.read_sql_query(f'select cluster_index,sum(pon_homes) as tot_pon from "{username}_sample_flask_clusters" group by cluster_index having sum(pon_homes) > 48 or sum(pon_homes) < 16',con=engine)
+        engine.dispose()
+        #terminate_connections()
+        print(df)
+        
+        filepath_cluster_output = fr"{HOME_DIR}/{username}/data output/cluster_output"
+        query = f"SELECT * FROM {table_name}"
+        
+        cmds = 'pgsql2shp -f "'+ filepath_cluster_output + f'" -h {host} -u {user} -P {password} {database} "'+ query + '"'
+        
+        
+        subprocess.call(cmds, shell=True)
+        #terminate_connections()
+        
+        # filepath_cluster_output = fr"{HOME_DIR}/data output\nodes_output"
+        # table_name_node = "{username}_sample_flask_nodes_output"
+        
+        # query = f"SELECT * FROM {table_name_node}"
+        
+        # cmds = 'pgsql2shp -f "'+ filepath_cluster_output + f'" -h {host} -u {user} -P {password} {database} "'+ query + '"'
+        
+        
+        # subprocess.call(cmds, shell=True)
+        # #terminate_connections()
+        
+        return {
+            "status": 200,
+            "cluster_index": list(df["cluster_index"].astype(str).values),
+            "sum_pon_homes": list(df["tot_pon"].astype(str).values),
+            "workspace_name":workspace_name,
+            "table_name":table_name
+        }
+        print("*********WPNAME***")
+        # print(get_workspace())
+        # return redirect(url_for('load_data'))
+    return '''
+    <!doctype html>
+    <title>Cluster Correction Page</title>
+    <h1>Cluster Correction</h1>
+    <form method=post enctype=multipart/form-data>
+      <h1>input cluster index</h1>
+      <input type=text name=input_cluster_index multiple>
+      <br>
+      <h1>Output cluster index</h1>
+      <input type=text name=output_cluster_index multiple>
+      <br>
+      <h1>uprn</h1>
+      <input type=text name=uprn multiple>
+      <br>
+      <h1>username</h1>
+      <input type=text name=username multiple>
+      <input type=submit value=Upload>
+    </form>
+    '''
+
+@app.route('/bf_snboundary_page', methods=['GET', 'POST'])
+def bf_snboundary_page():
+    if request.method == 'POST':
+        # username = json.loads(request.data)["username"]
+        username = request.form.get('username')
+        # terminate_connections()
+        for file in request.files.getlist('demand_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "demandpoints"
+            file.filename = ".".join(ls_name)
+            print("Existing file", file.filename)
+
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('duct_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "pia_duct"
+            file.filename = ".".join(ls_name)
+            print("Gaist File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('landboundary_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "landboundary"
+            file.filename = ".".join(ls_name)
+            print("Gaist File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('googlepoles_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "polesfromgoogle"
+            file.filename = ".".join(ls_name)
+            print("Gaist File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('piastruc_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "pia_structure"
+            file.filename = ".".join(ls_name)
+            print("Gaist File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('streetlines_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "streetlines"
+            file.filename = ".".join(ls_name)
+            print("Gaist File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+        # terminate_connections()
+        
+        for file in request.files.getlist('aerialdp_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "aerialdp"
+            file.filename = ".".join(ls_name)
+            print("aerialdp file", file.filename)
+
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('gaistdata_files'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "gaistdata"
+            file.filename = ".".join(ls_name)
+            print("gaistdata File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('streetcenterline_files'):
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+            ls_name = file.filename.split(".")
+            ls_name[0] = "streetcenterline"
+            file.filename = ".".join(ls_name)
+            print("streetcenterline File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('undergrounddp_files'):
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+            ls_name = file.filename.split(".")
+            ls_name[0] = "undergrounddp"
+            file.filename = ".".join(ls_name)
+            print("undergrounddp File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('lndbnry_files'):
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+            ls_name = file.filename.split(".")
+            ls_name[0] = "lndbnry"
+            file.filename = ".".join(ls_name)
+            print("lndbnry File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('topographiclines_files'):
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            # if file and allowed_file(file.filename):
+            ls_name = file.filename.split(".")
+            ls_name[0] = "topographiclines"
+            file.filename = ".".join(ls_name)
+            print("topographiclines File", file.filename)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+        return redirect(url_for('bf_snboundary_update_folder',
+                                filename=username))
+        
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+        <h1>Demand Points</h1>
+      <input type=file name=demand_files multiple>
+      <br>
+      <h1>Duct files</h1>
+      <input type=file name=duct_files multiple>
+      <br>
+      <h1>Landboundary File</h1>
+      <input type=file name=landboundary_files multiple>
+      <br>
+      <h1>Googlepoles files</h1>
+      <input type=file name=googlepoles_files multiple>
+      <br>
+      <h1>Piastruc files</h1>
+      <input type=file name=piastruc_files multiple>
+      <br>
+      <h1>Streetlines files</h1>
+      <input type=file name=streetlines_files multiple>
+      <br>
+      <h1>Aerialdp files</h1>
+      <input type=file name=aerialdp_files multiple>
+      <br>
+      <h1>Gaistdata Files</h1>
+      <input type=file name=gaistdata_files multiple>
+      <br>
+      <h1>undergrounddp files</h1>
+      <input type=file name=undergrounddp_files multiple>
+      <br>
+      <h1>topographiclines files</h1>
+      <input type=file name=topographiclines_files multiple>
+      <h1>username</h1>
+      <input type=text name=username multiple>
+      <input type=submit value=Upload>
+    </form>
+    '''
+@app.route('/bf_snboundary_update_folder', methods=['GET', 'POST'])
+def bf_snboundary_update_folder():
+    username = request.args.get("filename")
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input"):
+        for file in files:
+            if (file.endswith(".zip")):
+                with zipfile.ZipFile((os.path.join(subdir, file)), "fr") as zip_ref:
+                    zip_ref.extractall(subdir)
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input"):
+        for file in files:
+            if (file.endswith(".shp")):
+                full_path = os.path.join(subdir, file)
+                pointDf = gpd.read_file(full_path)
+                pointDf.crs = "epsg:27700"
+                
+                os.remove(full_path)
+                pointDf.to_file(full_path)
+                print(pointDf)
+     
+    return {
+        "status": 200
+    }
+    
+@app.route('/secondary_pre_gp_page', methods=['GET', 'POST'])
+def secondary_pre_gp_page():
+    if request.method == 'POST':
+        # username = json.loads(request.data)["username"]
+        username = request.form.get('username')
+        # terminate_connections()
+        for file in request.files.getlist('PNBoundary_file'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "pnboundary"
+            file.filename = ".".join(ls_name)
+            print("pnboundary file", file.filename)
+
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('gaistdata_file'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "gaistdata"
+            file.filename = ".".join(ls_name)
+            print("existing structures file", file.filename)
+
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('googlepoles_file'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "googlepoles"
+            file.filename = ".".join(ls_name)
+            print("googlePoles file", file.filename)
+
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        for file in request.files.getlist('piastructurepoles_file'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "piastructurepoles"
+            file.filename = ".".join(ls_name)
+            print("piastructurepoles file", file.filename)
+
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input", filename))
+
+        return redirect(url_for('secondary_pre_gp_update_db',
+                                filename=username))
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+        <h1>PNBoundary File</h1>
+      <input type=file name=PNBoundary_file multiple>
+      <br>
+      <h1>gaistdata File</h1>
+      <input type=file name=gaistdata_file multiple>
+      <br>
+      <h1>googlePoles File</h1>
+      <input type=file name=googlepoles_file multiple>
+      <br>
+      <h1>piastructurepoles File</h1>
+      <input type=file name=piastructurepoles_file multiple>
+      <br>
+      <h1>username</h1>
+      <input type=text name=username multiple>
+      <input type=submit value=Upload>
+    </form>
+    '''
+
+
+@app.route('/secondary_pre_gp_update_db', methods=['GET', 'POST'])
+def secondary_pre_gp_update_db():
+    username = request.args.get("filename")
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input"):
+        for file in files:
+            if (file.endswith(".zip")):
+                with zipfile.ZipFile((os.path.join(subdir, file)), "fr") as zip_ref:
+                    zip_ref.extractall(subdir)
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input"):
+        for file in files:
+            if (file.endswith(".shp")):
+                full_path = os.path.join(subdir, file)
+                pointDf = gpd.read_file(full_path)
+                pointDf.crs = "epsg:27700"
+                
+                os.remove(full_path)
+                pointDf.to_file(full_path)
+                print(pointDf)
+    qgis_int = fr"C:\Program Files\QGIS 3.20.0\bin\python-qgis.bat"
+    subprocess.run(f'{qgis_int} "{HOME_DIR}/scripts/secondary_pre_gp.py" {username}')
+
+    base_dir = fr"{HOME_DIR}/{username}/data output"
+    full_dir = os.walk(base_dir)
+    shapefile_list = []
+    name_shape_file = []
+    for source, dirs, files in full_dir:
+        for file_ in files:
+            if file_[-3:] == 'shp' and (file_[:-4] in ['flagged', 'updated_gp']):
+                shapefile_path = os.path.join(base_dir, file_)
+                shapefile_list.append(shapefile_path)
+                name_shape_file.append(file_[:-4])
+    # terminate_connections()
+    for shape_path in range(len(shapefile_list)):
+        # terminate_connections()
+        remove_table(f"{username}_sample_flask_{name_shape_file[shape_path]}")
+        # terminate_connections()
+        print()
+        print("Table name", name_shape_file[shape_path])
+        print()
+        cmds = 'shp2pgsql "' + shapefile_list[shape_path] + f'" {username}_sample_flask_{name_shape_file[shape_path]} | psql '
+        subprocess.call(cmds, shell=True)
+        # terminate_connections()
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/data_input"):
+        for file in files:
+            os.remove(os.path.join(subdir, file))
+    geo = Geoserver('http://localhost:8080/geoserver', username='admin', password='geoserver')
+    curr_time = int(time.time() * 1000)
+    workspace_name = f"NODE_{curr_time}"
+
+    geo.create_workspace(workspace=workspace_name)
+    arr = []
+    for shape_path in range(len(shapefile_list)):
+        # terminate_connections()
+        print("***************************RUNNING***********************")
+
+        table_name = f"{username}_sample_flask_{name_shape_file[shape_path]}"
+
+        x = geo.create_featurestore(store_name=f"{username}_sample_flask_{name_shape_file[shape_path]}",
+                                    workspace=workspace_name, db='UAT', host='localhost', port="5432",
+                                    pg_user='postgres',
+                                    pg_password='postgres', loose_bbox="")
+        print(x)
+        geo.publish_featurestore(workspace=workspace_name,
+                                 store_name=f"{username}_sample_flask_{name_shape_file[shape_path]}",
+                                 pg_table=table_name, srs_data="EPSG:27700")
+
+        print("***************************END***********************")
+        geo.publish_style(layer_name=table_name, style_name=table_name[len(username) + 1:], workspace=workspace_name,
+                          srs_name="EPSG:27700")
+        # table_name = f"{username}_sample_flask_{name_shape_file[shape_path]}"
+        # print(table_name)
+        # x = geo.create_featurestore(store_name=table_name, workspace=workspace_name, db='UAT', host='localhost', port="5432",
+                                    # pg_user='postgres',
+                                    # pg_password='postgres',loose_bbox="")
+
+        # geo.publish_featurestore(workspace=workspace_name, store_name=table_name, pg_table=table_name,srs_data="EPSG:27700")
+        # geo.publish_style(layer_name=table_name, style_name=table_name[len(username)+1:], workspace=workspace_name,
+                          # srs_name="EPSG:27700")
+        # # terminate_connections()
+        # geo.upload_style(path=os.path.join(os.getcwd(),"proposed.sld"), workspace=workspaceName)
+    # geo.publish_style(layer_name=table_name, style_name='nodeboundary', workspace=workspaceName, srs_name="EPSG:27700")
+    # terminate_connections()
+    print("***************************END***********************")
+    # GEOSERVER CODE
+    return {
+        "status": 200,
+        "table_name": name_shape_file,
+        "workspace_name": workspace_name
+    }
+    
+@app.route('/google_Poles_page', methods=['GET', 'POST'])
+def google_Poles_page():
+    if request.method == 'POST':
+    
+        username = request.form.get('username')
+        for file in request.files.getlist('googlePoles_file'):
+
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+
+            ls_name = file.filename.split(".")
+            ls_name[0] = "googlePoles"
+            file.filename = ".".join(ls_name)
+            print("googlePoles file", file.filename)
+
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'] + fr"/{username}/googlpoles_data", filename))
+        return redirect(url_for('google_Poles_update_folder',
+                                filename=username))
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+      <h1>googlePoles File</h1>
+      <input type=file name=googlePoles_file multiple>
+      <br>
+      <h1>username</h1>
+      <input type=text name=username multiple>
+      <input type=submit value=Upload>
+    </form>
+    '''
+
+
+@app.route('/google_Poles_update_folder', methods=['GET', 'POST'])
+def google_Poles_update_folder():
+    username = request.args.get("filename")
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/googlpoles_data"):
+        for file in files:
+            if (file.endswith(".zip")):
+                with zipfile.ZipFile((os.path.join(subdir, file)), "fr") as zip_ref:
+                    zip_ref.extractall(subdir)
+    for subdir, dirs, files in os.walk(app.config['UPLOAD_FOLDER'] + fr"/{username}/googlpoles_data"):
+        for file in files:
+            if (file.endswith(".shp")):
+                full_path = os.path.join(subdir, file)
+                pointDf = gpd.read_file(full_path)
+                pointDf.crs = "epsg:27700"
+                
+                os.remove(full_path)
+                pointDf.to_file(full_path)
+                print(pointDf)
+    
+    return {
+        "status": 200,
+        
+    }
+    
+@app.route('/download_google_Poles_files', methods=['GET', 'POST'])
+def download_google_Poles_files():
+    # Zip file Initialization and you can change the compression type
+    zipfolder = zipfile.ZipFile('files.zip', 'w', compression=zipfile.ZIP_STORED)
+
+    # zip all the files which are inside in the folder
+    for root, dirs, files in os.walk('user1/googlpoles_data/'):
+        for file in files:
+            zipfolder.write('user1/googlpoles_data/' + file)
+    zipfolder.close()
+    p = 'files.zip'
+
+    return send_file(p, mimetype='zip', download_name=p, environ=request.environ, as_attachment=True)
+
+    # Delete the zip file if not needed
+    os.remove("files.zip")  
+    return {
+        "status": 200,
+        
+    }
+    
 
 @app.route('/export_output',methods=['GET', 'POST'])
 def export_output():
@@ -2021,4 +2846,4 @@ def crud():
         return "Delete Operation done!"
     else:
         return "Invalid Action"
-serve(app, host='0.0.0.0', port=5000, threads=8) #WAITRESS!
+#serve(app, host='0.0.0.0', port=5000, threads=8) #WAITRESS!
